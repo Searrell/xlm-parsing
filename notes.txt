@@ -1,0 +1,81 @@
+import xml.etree.ElementTree as ET
+from collections import OrderedDict
+import json
+
+xml.etree.ElementTree as ET: This module is used for parsing and creating XML data.
+OrderedDict from collections: This ensures that the order of elements is preserved when storing data in a dictionary.
+json: This module is used for working with JSON data, including reading from and writing to JSON files.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+def parse_xml_to_dict(xml_file):
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+
+parse_xml_to_dict(xml_file): This function takes the path to an XML file as an argument.
+ET.parse(xml_file): Parses the XML file and returns an ElementTree object.
+tree.getroot(): Gets the root element of the XML tree.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+    def traverse(element):
+        node = OrderedDict()
+        for child in element:
+            if len(child):
+                node[child.tag] = traverse(child)
+            else:
+                node[child.tag] = child.text
+        return node
+
+traverse(element): A recursive function that traverses each element in the XML tree.
+node = OrderedDict(): Initializes an ordered dictionary to store the element’s data.
+for child in element: Iterates over each child element.
+if len(child): Checks if the child element has its own children.
+node[child.tag] = traverse(child): If it does, recursively traverse the child element.
+node[child.tag] = child.text: If it doesn’t, store the text content of the child element.
+return node: Returns the dictionary representing the current element and its children.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+    catalog = OrderedDict()
+    catalog['book'] = []
+    for book in root.findall('book'):
+        book_data = traverse(book)
+        book_data['id'] = book.attrib['id']  # Include the book id
+        catalog['book'].append(book_data)
+
+    return catalog
+
+
+catalog = OrderedDict(): Initializes an ordered dictionary to store the catalog data.
+catalog[‘book’] = []: Initializes a list to store book entries.
+for book in root.findall(‘book’): Finds all book elements in the root element.
+book_data = traverse(book): Traverses each book element and stores the result in book_data.
+book_data[‘id’] = book.attrib[‘id’]: Adds the id attribute of the book to book_data.
+catalog[‘book’].append(book_data): Appends the book_data dictionary to the catalog['book'] list.
+return catalog: Returns the complete catalog dictionary.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+def write_dict_to_json(data, json_file):
+    with open(json_file, 'w') as f:
+        json.dump(data, f, indent=4)
+
+
+write_dict_to_json(data, json_file): This function takes the dictionary data and the path to a JSON file as arguments.
+with open(json_file, ‘w’) as f: Opens the JSON file in write mode.
+json.dump(data, f, indent=4): Writes the dictionary data to the JSON file with an indentation of 4 spaces for readability.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+# Example usage
+xml_file = 'books.xml'
+json_file = 'output2.json'
+
+data = parse_xml_to_dict(xml_file)
+write_dict_to_json(data, json_file)
+
+
+xml_file = ‘books.xml’: Specifies the path to the XML file.
+json_file = ‘output.json’: Specifies the path to the JSON file.
+data = parse_xml_to_dict(xml_file): Parses the XML file and stores the result in data.
+write_dict_to_json(data, json_file): Writes the data dictionary to the JSON file.
+This code will read your books.xml file, parse it into a dictionary while preserving the order of elements,
+and then write the dictionary to output.json.
+
+----------------------------------------------------------------------------------------------------------------------------------------
